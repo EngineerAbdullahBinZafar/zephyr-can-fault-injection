@@ -1,0 +1,25 @@
+name: Bug Report
+description: Report a defect in the C11 CAN rate limiter, ISO 11898-1 state machine, or fault injector
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Clear explanation of the unexpected behavior
+    validations:
+      required: true
+  - type: input
+    id: compiler
+    attributes:
+      label: Compiler & Target MCU
+      placeholder: e.g., arm-none-eabi-gcc 13.2 / NXP S32K344 or Ubuntu gcc 13
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal Reproduction Case
+      description: Sequence of fault injections or bus-off ticks reproducing the issue
+    validations:
+      required: true

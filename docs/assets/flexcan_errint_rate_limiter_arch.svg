@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f17"/>
+      <stop offset="50%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0b0f17"/>
+    </linearGradient>
+    <linearGradient id="hdrGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="50%" stop-color="#7b61ff"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <style>
+      .t-h1 { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 18px; font-weight: 800; fill: #f8fafc; letter-spacing: 1px; }
+      .t-sub { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; fill: #00d4ff; font-weight: 700; }
+      .t-box-h { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #f8fafc; }
+      .t-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; fill: #cbd5e1; }
+      .t-warn { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; fill: #f59e0b; font-weight: 700; }
+      .t-ok { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; fill: #10b981; font-weight: 700; }
+      .t-crit { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; fill: #ef4444; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect x="2" y="2" width="956" height="436" rx="14" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="1.5"/>
+  <rect x="2" y="2" width="956" height="4" rx="2" fill="url(#hdrGrad)"/>
+
+  <!-- Header -->
+  <text x="28" y="36" class="t-h1">ZEPHYR RTOS CAN SUBSYSTEM — ISR FAULT STORM GOVERNOR &amp; ISO 11898-1 TOPOLOGY</text>
+  <text x="28" y="56" class="t-sub">HARDWARE: NXP FlexCAN (S32K3 / i.MX RT) · STM32 FDCAN | MITIGATES &gt;10 kHz ERRINT LOG RING-BUFFER SATURATION</text>
+
+  <!-- Node 1: Physical CAN Bus -->
+  <rect x="28" y="84" width="210" height="145" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="1.4"/>
+  <rect x="28" y="84" width="210" height="26" rx="8" fill="#7f1d1d" fill-opacity="0.45"/>
+  <text x="42" y="102" class="t-box-h">1. Physical Layer Faults</text>
+  <text x="42" y="128" class="t-mono">• CAN_H / CAN_L (ISO 11898-2)</text>
+  <text x="42" y="148" class="t-mono">• Missing 120 Ohm Termination</text>
+  <text x="42" y="168" class="t-mono">• Ground Offset / Dominant Clamp</text>
+  <text x="42" y="192" class="t-crit">ERRINT Storm &gt; 10,000 Hz</text>
+  <text x="42" y="212" class="t-mono">TX Fault: TEC += 8 | RX: REC += 1</text>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="238" y1="156" x2="288" y2="156" stroke="#ef4444" stroke-width="2"/>
+  <polygon points="288,151 298,156 288,161" fill="#ef4444"/>
+  <text x="242" y="146" class="t-crit">IRQ</text>
+
+  <!-- Node 2: Token Bucket Rate Limiter (Hardened Driver) -->
+  <rect x="300" y="84" width="320" height="145" rx="8" fill="#0f172a" stroke="#00d4ff" stroke-width="1.6"/>
+  <rect x="300" y="84" width="320" height="26" rx="8" fill="#0e7490" fill-opacity="0.4"/>
+  <text x="314" y="102" class="t-box-h">2. In-ISR Token-Bucket Governor (C11)</text>
+  <text x="314" y="128" class="t-ok">Pure Integer Fixed-Point Math (No FPU)</text>
+  <text x="314" y="148" class="t-mono">• Burst Capacity : 10 log frames (10e6 uTok)</text>
+  <text x="314" y="168" class="t-mono">• Refill Rate    : 20 tokens/sec (k_uptime_get)</text>
+  <text x="314" y="188" class="t-mono">• Suppressed Cnt : Atomic delta counter flushed</text>
+  <text x="314" y="212" class="t-sub">WCET Determinism Preserved: &lt; 15 us Latency</text>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="620" y1="156" x2="670" y2="156" stroke="#10b981" stroke-width="2"/>
+  <polygon points="670,151 680,156 670,161" fill="#10b981"/>
+  <text x="625" y="146" class="t-ok">Capped</text>
+
+  <!-- Node 3: Deferred Log Backend & RTOS Control -->
+  <rect x="682" y="84" width="250" height="145" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.4"/>
+  <rect x="682" y="84" width="250" height="26" rx="8" fill="#065f46" fill-opacity="0.45"/>
+  <text x="696" y="102" class="t-box-h">3. Deferred Log Ringbuf</text>
+  <text x="696" y="128" class="t-ok">0 Buffer Overflows (4096 B Pool)</text>
+  <text x="696" y="148" class="t-mono">• Max ~12 logs / 100ms fault burst</text>
+  <text x="696" y="168" class="t-mono">• Summary: "[Suppressed 985 IRQs]"</text>
+  <text x="696" y="192" class="t-ok">100 Hz MPC Control Thread Unblocked</text>
+  <text x="696" y="212" class="t-mono">RTT / UART FIFO Never Stalled</text>
+
+  <!-- Bottom Section: ISO 11898-1 Bus-Off FSM -->
+  <rect x="28" y="256" width="904" height="156" rx="8" fill="#0f172a" stroke="#7b61ff" stroke-width="1.3"/>
+  <rect x="28" y="256" width="904" height="26" rx="8" fill="#4c1d95" fill-opacity="0.35"/>
+  <text x="42" y="274" class="t-box-h">4. ISO 11898-1:2015 Deterministic Error State Machine &amp; Bus-Off Auto-Recovery</text>
+
+  <!-- FSM Boxes -->
+  <rect x="46" y="300" width="175" height="62" rx="6" fill="#064e3b" fill-opacity="0.35" stroke="#10b981" stroke-width="1.2"/>
+  <text x="60" y="324" class="t-ok">ERROR_ACTIVE</text>
+  <text x="60" y="346" class="t-mono">TEC &lt;= 96 &amp; REC &lt;= 96</text>
+
+  <line x1="221" y1="331" x2="262" y2="331" stroke="#f59e0b" stroke-width="1.8"/>
+  <polygon points="262,326 270,331 262,336" fill="#f59e0b"/>
+
+  <rect x="272" y="300" width="180" height="62" rx="6" fill="#78350f" fill-opacity="0.35" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="286" y="324" class="t-warn">ERROR_WARNING</text>
+  <text x="286" y="346" class="t-mono">TEC &gt; 96 or REC &gt; 96</text>
+
+  <line x1="452" y1="331" x2="493" y2="331" stroke="#f59e0b" stroke-width="1.8"/>
+  <polygon points="493,326 501,331 493,336" fill="#f59e0b"/>
+
+  <rect x="503" y="300" width="180" height="62" rx="6" fill="#7c2d12" fill-opacity="0.4" stroke="#fb923c" stroke-width="1.2"/>
+  <text x="517" y="324" class="t-warn">ERROR_PASSIVE</text>
+  <text x="517" y="346" class="t-mono">TEC &gt; 127 or REC &gt; 127</text>
+
+  <line x1="683" y1="331" x2="724" y2="331" stroke="#ef4444" stroke-width="1.8"/>
+  <polygon points="724,326 732,331 724,336" fill="#ef4444"/>
+
+  <rect x="734" y="300" width="180" height="62" rx="6" fill="#7f1d1d" fill-opacity="0.45" stroke="#ef4444" stroke-width="1.4"/>
+  <text x="748" y="324" class="t-crit">BUS_OFF</text>
+  <text x="748" y="346" class="t-mono">TEC &gt; 255 (TX Isolated)</text>
+
+  <!-- Recovery Feedback Path -->
+  <path d="M 824 362 L 824 392 L 133 392 L 133 370" fill="none" stroke="#00d4ff" stroke-width="1.6" stroke-dasharray="5,4"/>
+  <polygon points="128,370 133,362 138,370" fill="#00d4ff"/>
+  <text x="315" y="386" class="t-sub">Auto-Recovery Gate: 128 Sequences of 11 Consecutive Recessive Bits -&gt; Reset TEC=0, REC=0</text>
+</svg>

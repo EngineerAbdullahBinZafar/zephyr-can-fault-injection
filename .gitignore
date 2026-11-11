@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+build/
+build_cmake/
+*.o
+*.a
+*.exe
